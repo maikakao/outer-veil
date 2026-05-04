@@ -1,0 +1,18 @@
+{
+  "name": "outer-veil",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "mkdir -p public && npx @tailwindcss/cli -i ./style.css -o ./public/dist/style.css && cp index.html variables.css public/ && cp -r assets public/",
+    "watch": "npx @tailwindcss/cli -i ./style.css -o ./dist/style.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.2",
+    "tailwindcss": "^4.2.2"
+  }
+}

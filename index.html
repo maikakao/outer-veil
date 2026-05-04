@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#d8d8d8" />
+    <title>Outer Veil</title>
+    <link rel="stylesheet" href="https://use.typekit.net/tuf1kdi.css" />
+    <link rel="stylesheet" href="dist/style.css" />
+    <style>
+      html, body {
+        overscroll-behavior: none;
+        touch-action: none;
+      }
+
+      #hamburger { display: none; }
+      #mobile-menu { display: none; opacity: 0; }
+
+      @media (max-width: 700px) {
+        #page-links { display: none !important; }
+
+        #hamburger {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          color: var(--color-primary);
+          height: calc(var(--text-base) * var(--leading-tight));
+        }
+
+        #mobile-menu {
+          display: flex;
+          position: fixed;
+          inset: 0;
+          z-index: 60;
+          background: var(--color-neutral);
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 32px;
+          font-family: var(--font-sans);
+          font-size: var(--text-base);
+          line-height: var(--leading-tight);
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+          transition: none;
+        }
+        #mobile-menu.open {
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+        }
+
+        #mobile-close {
+          position: absolute;
+          top: var(--vert-margin);
+          right: var(--side-margin);
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          color: var(--color-primary);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: calc(var(--text-base) * var(--leading-tight));
+        }
+
+
+        #logo-container {
+          width: 240px !important;
+          height: 146px !important;
+        }
+
+        #innerlink-release {
+          left: 50% !important;
+          top: calc(50% + 90px) !important;
+          transform: translateX(-50%) !important;
+          cursor: default !important;
+        }
+        #innerlink-release:active { cursor: default !important; }
+
+        #content-info {
+          width: calc(100vw - 48px) !important;
+          left: 24px !important;
+          height: auto !important;
+          top: calc(50% - 150px) !important;
+        }
+        #content-info > p {
+          position: static !important;
+          width: 100% !important;
+        }
+
+        #content-releases {
+          width: calc(100vw - 48px) !important;
+          left: 24px !important;
+          top: calc(50% - 295px) !important;
+        }
+        #content-releases > p {
+          width: 100% !important;
+          left: 0 !important;
+        }
+
+        #content-contact > div {
+          left: 50% !important;
+          top: calc(50% - 135px) !important;
+          transform: translateX(-50%) !important;
+          width: calc(100vw - 48px) !important;
+          text-align: center !important;
+        }
+
+        #social-links { display: none !important; }
+        #clock { display: none !important; }
+        .layer { transition: none !important; }
+      }
+    </style>
+    <!-- Preload all logo images so they're cached before navigation -->
+    <link rel="preload" as="image" href="assets/mockup-front-blank.png" />
+    <link rel="preload" as="image" href="assets/mockup-front-cd-blank.png" />
+    <link rel="preload" as="image" href="assets/mockup-back-blank.png" />
+    <link rel="preload" as="image" href="assets/page-logo-home.png" />
+    <link rel="preload" as="image" href="assets/page-logo-info.png" />
+    <link rel="preload" as="image" href="assets/page-logo-releases.png" />
+    <link rel="preload" as="image" href="assets/page-logo-contact.png" />
+  </head>
+
+  <body class="bg-neutral overflow-hidden h-screen w-screen">
+
+    <!-- ════════════════════════════════════════════════════
+         LOADING OVERLAY — loading-one → five → homepage
+         Backgrounds crossfade in (0.25s), never fade out — no flash.
+         Logos fade in only, never out — persistent once revealed.
+    ═════════════════════════════════════════════════════ -->
+    <div id="loader" aria-hidden="true" style="position:fixed;inset:0;z-index:50;background:#eeeeee;overflow:hidden">
+
+      <!-- Single static background — same image/position as homepage, never animates -->
+      <div style="pointer-events:none;position:absolute;left:50%;transform:translateX(-50%);width:1440px;height:964.086px;top:var(--vert-margin);overflow:hidden">
+        <img src="assets/page-bg-home.png" alt="" style="display:block;width:1440px;height:964.086px;max-width:none" />
+      </div>
+
+      <!-- 10% off-black overlay — sits above background, below logos, fades out with loader -->
+      <div style="position:absolute;inset:0;background:rgba(19,19,19,0.1);pointer-events:none"></div>
+
+      <!-- Persistent logo stack — logos only ever fade IN, never out -->
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:1">
+        <div id="loader-logo-wrap" style="position:relative;width:400px;height:243px;flex-shrink:0;transform:scale(0.8);transform-origin:center">
+          <!-- frame 1: no logo (stays hidden) -->
+          <div class="loader-logo" style="position:absolute;inset:-6.79% 7.13% 6.79% -7.13%;opacity:0;transition:opacity 0.25s cubic-bezier(0.42,0,1,1);will-change:opacity">
+            <img src="assets/loader-logo-2.png" alt="Outer Veil" style="display:block;width:100%;height:100%;max-width:none" />
+          </div>
+          <!-- frame 2 logo -->
+          <div class="loader-logo" style="position:absolute;inset:-6.79% 7.13% 6.79% -7.13%;opacity:0;transition:opacity 0.25s cubic-bezier(0.42,0,1,1);will-change:opacity">
+            <img src="assets/loader-logo-2.png" alt="Outer Veil" style="display:block;width:100%;height:100%;max-width:none" />
+          </div>
+          <!-- frame 3 logo -->
+          <div class="loader-logo" style="position:absolute;inset:-6.79% 7.13% 6.79% -7.13%;opacity:0;transition:opacity 0.25s cubic-bezier(0.42,0,1,1);will-change:opacity">
+            <img src="assets/loader-logo-3.png" alt="Outer Veil" style="display:block;width:100%;height:100%;max-width:none" />
+          </div>
+          <!-- frame 4 logo -->
+          <div class="loader-logo" style="position:absolute;inset:-6.79% 7.13% 6.79% -7.13%;opacity:0;transition:opacity 0.25s cubic-bezier(0.42,0,1,1);will-change:opacity">
+            <img src="assets/loader-logo-4.png" alt="Outer Veil" style="display:block;width:100%;height:100%;max-width:none" />
+          </div>
+          <!-- frame 5 logo -->
+          <div class="loader-logo" style="position:absolute;inset:-6.79% 7.13% 6.79% -7.13%;opacity:0;transition:opacity 0.25s cubic-bezier(0.42,0,1,1);will-change:opacity">
+            <img src="assets/loader-logo-5.png" alt="Outer Veil" style="display:block;width:100%;height:100%;max-width:none" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="relative h-screen w-screen flex flex-col items-center justify-between" style="padding: var(--vert-margin) var(--side-margin)">
+
+      <!-- ════════════════════════════════════════════════════
+           BACKGROUND BLOBS — one per view, crossfade
+      ═════════════════════════════════════════════════════ -->
+      <div class="pointer-events-none absolute h-[964.086px]" style="top:var(--vert-margin);left:50%;transform:translateX(-50%);width:1440px;overflow:hidden" aria-hidden="true">
+        <img id="bg-home"
+          src="assets/page-bg-home.png"
+          alt="" class="layer layer--active block absolute inset-0 max-w-none" style="width:1440px;height:964.086px" />
+        <img id="bg-info"
+          src="assets/page-bg-info.png"
+          alt="" class="layer block absolute inset-0 max-w-none" style="width:1440px;height:964.086px" />
+        <img id="bg-releases"
+          src="assets/page-bg-releases.png"
+          alt="" class="layer block absolute inset-0 max-w-none" style="width:1440px;height:964.086px" />
+        <img id="bg-contact"
+          src="assets/page-bg-contact.png"
+          alt="" class="layer block absolute inset-0 max-w-none" style="width:1440px;height:964.086px" />
+      </div>
+
+      <!-- ════════════════════════════════════════════════════
+           HEADER — shared, never animates
+      ═════════════════════════════════════════════════════ -->
+      <header class="relative flex items-start justify-between w-full shrink-0 z-10 text-[length:var(--text-base)] leading-[var(--leading-tight)]">
+        <a id="label-title" href="#" data-nav="home" class="nav-link w-[130px]">[outer veil]</a>
+        <nav id="page-links" class="flex gap-[32px] items-center" aria-label="Primary navigation">
+          <a href="#" data-nav="info"     class="nav-link">Info</a>
+          <a href="#" data-nav="releases" class="nav-link">Releases</a>
+          <a href="https://outerveil.bandcamp.com/" target="_blank" rel="noopener noreferrer" class="nav-link">Store</a>
+          <a href="#" data-nav="contact"  class="nav-link">Contact</a>
+        </nav>
+        <button id="hamburger" aria-label="Open menu" aria-expanded="false">
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+            <line x1="0" y1="1"  x2="18" y2="1"  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="0" y1="7"  x2="18" y2="7"  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="0" y1="13" x2="18" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </header>
+
+      <!-- ════════════════════════════════════════════════════
+           LOGO — cover-and-reveal: all 4 imgs pre-loaded in DOM, no src swapping.
+           Outgoing fades out on top; incoming snaps to opacity:1 behind it first.
+           Combined opacity never exceeds 1 — no flash, no decode artifacts.
+      ═════════════════════════════════════════════════════ -->
+      <div id="logo-container" class="relative w-[400px] h-[243px] shrink-0">
+        <div class="absolute inset-[-6.79%_7.13%_6.79%_-7.13%]">
+          <img id="logo-home"     src="assets/page-logo-home.png"     alt="Outer Veil" class="absolute inset-0 block w-full h-full" style="opacity:1;transition:opacity 0.3s ease-out" />
+          <img id="logo-info"     src="assets/page-logo-info.png"     alt="Outer Veil" class="absolute inset-0 block w-full h-full" style="opacity:0;transition:opacity 0.3s ease-out" />
+          <img id="logo-releases" src="assets/page-logo-releases.png" alt="Outer Veil" class="absolute inset-0 block w-full h-full" style="opacity:0;transition:opacity 0.3s ease-out" />
+          <img id="logo-contact"  src="assets/page-logo-contact.png"  alt="Outer Veil" class="absolute inset-0 block w-full h-full" style="opacity:0;transition:opacity 0.3s ease-out" />
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════
+           CONTENT — per-view, crossfade
+      ═════════════════════════════════════════════════════ -->
+
+      <!-- Homepage layer anchor (card is shared standalone element) -->
+      <div id="content-home" class="layer layer--active absolute" style="width:0;height:0"></div>
+
+      <!-- Info: innerlink-center-frame-info (623×470, roughly centered) — text anchored bottom-right -->
+      <div id="content-info"
+        class="layer absolute"
+        style="width:623px;height:470px;left:calc(50% - 311.5px);top:calc(50% - 235px)">
+        <p class="absolute m-0 text-primary text-[length:var(--text-base)] leading-[var(--leading-tight)]"
+          style="right:10px;bottom:50px;width:408px">
+          [outer veil] is a San Francisco-based record label devoted to unearthing terrestrial, cross-genre sounds. Situated in the hazy penumbra of the North American club ecosystem, it constructs low-lit environments where distinct works emerge from the interstices of psychedelic and experimental. by Oso Feo, kk.Shucko, fallen matter, 2026
+        </p>
+      </div>
+
+      <!-- Releases: innerlink-center-frame-text (486×470, CENTER/CENTER) — text at (10,10), innerlink-release at (355.625, 310.625) -->
+      <div id="content-releases"
+        class="layer absolute"
+        style="width:486px;height:470px;left:calc(50% - 243px);top:calc(50% - 235px)">
+
+        <!-- Description text: (10, 10), w:466 -->
+        <p class="absolute m-0 text-primary text-[length:var(--text-base)] leading-[var(--leading-tight)] whitespace-pre-wrap"
+          style="left:10px;top:10px;width:466px">A haven glows in the understory, a pool thrums beneath the foliage. Harboured on the water's brim, unseen organisms enter a cyclical, catabolic dance. In this sunless refuge, they feast on death and emanate light. Come, look: life remakes itself from its detritus.&#10;&#10;Under the veil, we unearth a morphology in which the new germinates from the old, in shrouded conditions hospitable to peculiarity and intrigue. Equal parts terrestrial and cybernetic, this volume showcases a breadth of creations emerging from the North American club ecosystem.&#10;&#10;After the long shelter, comes Spring.</p>
+
+
+      </div>
+
+      <!-- Contact: innerlink-center-frame-contact (486×470, CENTER/CENTER) -->
+      <!-- text at (117, 226.625) w:359 — innerlink-release at (355.625, 310.625) via shared element -->
+      <div id="content-contact" class="layer absolute inset-0">
+
+        <div class="absolute text-primary text-[length:var(--text-base)] leading-[var(--leading-tight)]"
+          style="left:calc(50% - 126px);top:calc(50% - 12.375px);width:359px">
+          <p class="m-0">For all inquiries, please contact:</p>
+          <a href="mailto:outer-veil@proton.me" class="nav-link block">outer-veil@proton.me</a>
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════════════════════════
+           INNERLINK-RELEASE — persistent, never fades (prevents flash on home↔releases)
+           Default position matches both innerlink-center-frame and innerlink-center-frame-text:
+           left = 50% - 243 + 355.625 = 50% + 112.625px
+           top  = 50% - 235 + 310.625 = 50% + 75.625px
+      ═════════════════════════════════════════════════════ -->
+      <div id="innerlink-release"
+        class="absolute flex flex-col gap-[6px] items-center cursor-grab active:cursor-grabbing select-none"
+        style="width:233.5078125px;height:238.8125px;left:calc(50% + 112.625px);top:calc(50% + 75.625px);z-index:3">
+        <div id="innerlink-cover" class="relative shrink-0 overflow-hidden" style="width:233.5078125px;height:209.8125px">
+          <img src="assets/mockup-front-blank.png"
+            alt="Innerlink album cover"
+            fetchpriority="high"
+            class="absolute inset-0 w-full h-full object-contain max-w-none" />
+        </div>
+        <div class="flex flex-col justify-center h-[23px] w-full">
+          <p class="text-center text-primary text-[length:var(--text-base)] leading-[var(--leading-tight)] m-0">Innerlink [01]</p>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════
+           FOOTER — shared, never animates
+      ═════════════════════════════════════════════════════ -->
+      <footer class="relative flex items-end justify-between w-full shrink-0 z-10 text-[length:var(--text-base)] leading-[var(--leading-tight)]">
+        <time id="clock" class="text-primary tabular-nums" aria-label="Current time"></time>
+        <nav id="social-links" class="flex gap-[32px] items-center" aria-label="Social links">
+          <a href="https://soundcloud.com/outer-veil"         target="_blank" rel="noopener noreferrer" class="nav-link">Soundcloud</a>
+          <a href="https://www.instagram.com/outerveil.info/" target="_blank" rel="noopener noreferrer" class="nav-link">Instagram</a>
+          <a href="https://outerveil.bandcamp.com/"           target="_blank" rel="noopener noreferrer" class="nav-link">Bandcamp</a>
+        </nav>
+      </footer>
+
+    </div>
+
+    <!-- Mobile navigation menu -->
+    <div id="mobile-menu" role="dialog" aria-modal="true" aria-label="Navigation">
+      <button id="mobile-close" aria-label="Close menu">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="1" y1="1" x2="13" y2="13" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="13" y1="1" x2="1" y2="13" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </button>
+      <a href="#" data-nav="info"     class="nav-link">Info</a>
+      <a href="#" data-nav="releases" class="nav-link">Releases</a>
+      <a href="https://outerveil.bandcamp.com/" target="_blank" rel="noopener noreferrer" class="nav-link">Store</a>
+      <a href="#" data-nav="contact"  class="nav-link">Contact</a>
+      <div style="width:40%;height:1px;background:rgba(19,19,19,0.15);margin:8px 0"></div>
+      <a href="https://soundcloud.com/outer-veil"         target="_blank" rel="noopener noreferrer" class="nav-link">Soundcloud</a>
+      <a href="https://www.instagram.com/outerveil.info/" target="_blank" rel="noopener noreferrer" class="nav-link">Instagram</a>
+      <a href="https://outerveil.bandcamp.com/"           target="_blank" rel="noopener noreferrer" class="nav-link">Bandcamp</a>
+    </div>
+
+    <script>
+      // ── Prevent all touch-based zoom, swipe, and overscroll ─
+      document.addEventListener("gesturestart",  function(e) { e.preventDefault(); }, { passive: false });
+      document.addEventListener("gesturechange", function(e) { e.preventDefault(); }, { passive: false });
+      document.addEventListener("touchmove",     function(e) { e.preventDefault(); }, { passive: false });
+
+      // ── Loading animation sequence ──────────────────────────
+      // loading-one → … → loading-five → homepage
+      // Dip-to-white: each step fades current OUT (0.25s) then
+      // fades next IN (0.25s) — logos never overlap, no flash.
+      (function () {
+        const loader = document.getElementById("loader");
+        const logos  = Array.from(loader.querySelectorAll(".loader-logo"));
+        const allImgs = Array.from(loader.querySelectorAll("img"));
+        const logoWrapEl = document.getElementById("loader-logo-wrap");
+
+        // On mobile, scale the loader logo to match the CSS-reduced logo-container (240/400 = 0.6)
+        // and reposition it to sit exactly over where logo-home lives in the page layout,
+        // so the logo never shifts position at any point during or after loading.
+        if (window.innerWidth <= 700) {
+          const logoContainer = document.getElementById("logo-container");
+          const rect = logoContainer.getBoundingClientRect();
+          const cx = rect.left + rect.width  / 2;
+          const cy = rect.top  + rect.height / 2;
+          logoWrapEl.style.position      = "fixed";
+          logoWrapEl.style.left          = (cx - 200) + "px"; // logoWrap is 400px wide
+          logoWrapEl.style.top           = (cy - 121.5) + "px"; // logoWrap is 243px tall
+          logoWrapEl.style.transformOrigin = "center";
+          logoWrapEl.style.transform     = "scale(0.6)";
+        }
+
+        // logos[0] stays hidden (frame 1 has no logo); logos[1..4] fade in progressively
+        let idx = 1;
+
+        function step() {
+          if (idx < logos.length) {
+            logos[idx].style.opacity = "1";
+            idx++;
+            setTimeout(step, 250);
+          } else {
+            // All logos revealed — hold then fade out loader
+            setTimeout(() => {
+              const logoHome = document.getElementById("logo-home");
+              const logoWrap = logoWrapEl;
+              const isMobile = window.innerWidth <= 700;
+
+              const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+              function animateThemeColor(duration) {
+                // Interpolate #d8d8d8 → #eeeeee over the same duration as the loader fade
+                const start = performance.now();
+                (function step(now) {
+                  const t = Math.min((now - start) / duration, 1);
+                  const v = Math.round(216 + 22 * t); // 216 = #d8, 238 = #ee
+                  if (themeColorMeta) themeColorMeta.content = `rgb(${v},${v},${v})`;
+                  if (t < 1) requestAnimationFrame(step);
+                })(start);
+              }
+
+              if (isMobile) {
+                // On mobile: skip the scale animation entirely.
+                // Snap logo-home visible so it shows at the correct CSS size as the loader fades.
+                logoHome.style.transition = "none";
+                logoHome.style.opacity    = "1";
+
+                animateThemeColor(400);
+                loader.style.transition = "opacity 0.4s cubic-bezier(0.42,0,1,1)";
+                loader.style.opacity    = "0";
+
+                loader.addEventListener("transitionend", function onEnd(e) {
+                  if (e.propertyName !== "opacity") return;
+                  loader.removeEventListener("transitionend", onEnd);
+                  loader.remove();
+                });
+              } else {
+                // Pull the logo wrap OUT of the loader so it is no longer a child
+                // of the fading element — it will never dim as the loader fades.
+                // Position it exactly over logo-home's layout position so the end-of-animation
+                // swap is invisible (logoWrap and logo-home are at the exact same spot).
+                const logoContainer = logoHome.parentElement.parentElement; // relative 400×243 div
+                const cRect = logoContainer.getBoundingClientRect();
+                const cx = cRect.left + cRect.width  / 2;
+                const cy = cRect.top  + cRect.height / 2;
+                logoWrap.style.position      = "fixed";
+                logoWrap.style.left          = (cx - 200) + "px";   // logoWrap is 400 px wide
+                logoWrap.style.top           = (cy - 121.5) + "px"; // logoWrap is 243 px tall
+                logoWrap.style.transformOrigin = "center";
+                logoWrap.style.zIndex        = "51";
+                document.body.appendChild(logoWrap);
+
+                // Keep page logo hidden while logoWrap is the visual stand-in
+                logoHome.style.transition = "none";
+                logoHome.style.opacity    = "0";
+
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                  // Scale the logo (above loader — opacity unaffected by loader's fade)
+                  logoWrap.style.transition = "transform 0.25s ease-out";
+                  logoWrap.style.transform  = "scale(1)";
+
+                  // Fade the loader (background only — logo is now independent)
+                  animateThemeColor(400);
+                  loader.style.transition   = "opacity 0.4s cubic-bezier(0.42,0,1,1)";
+                  loader.style.opacity      = "0";
+
+                  // transitionend fires before the browser paints that frame —
+                  // swap logoWrap → logo-home and remove both atomically, no gap frame
+                  loader.addEventListener("transitionend", function onEnd(e) {
+                    if (e.propertyName !== "opacity") return;
+                    loader.removeEventListener("transitionend", onEnd);
+                    loader.remove();
+                    logoWrap.remove();
+                    logoHome.style.transition = "none";
+                    logoHome.style.opacity    = "1";
+                  });
+                }));
+              }
+            }, 100);
+          }
+        }
+
+        // Decode all loader images before starting
+        Promise.all(allImgs.map(img => img.decode ? img.decode().catch(() => {}) : Promise.resolve()))
+          .then(() => setTimeout(step, 500));
+      })();
+
+      // ── Live clock (PST / PDT) ──────────────────────────────
+      function updateClock() {
+        const now = new Date();
+        const h    = String(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles", hour: "2-digit", hour12: false })).padStart(2, "0");
+        const m    = String(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles", minute: "2-digit" })).padStart(2, "0");
+        const s    = String(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles", second: "2-digit" })).padStart(2, "0");
+        const zone = now.toLocaleString("en-US", { timeZone: "America/Los_Angeles", timeZoneName: "short" }).split(" ").pop();
+        document.getElementById("clock").textContent = `${h}:${m}:${s} ${zone}`;
+      }
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      // ── Smart Animate layer switching ───────────────────────
+      // Figma: SMART_ANIMATE, EASE_OUT, 300ms
+      // info → home (ON_CLICK anywhere except excluded zones)
+      // releases → home (ON_CLICK anywhere except excluded zones)
+
+      const VIEWS  = ["home", "info", "releases", "contact"];
+      const LAYERS = ["bg", "content"];
+      let current   = "home";
+      let animating = false;
+
+      // ── Logo transition ───────────────────────────────────────
+      // Three cases, each chosen for a specific reason:
+      //
+      // home → partial  (cover-and-reveal)
+      //   Partial snaps to opacity:1 behind home — invisible because partial
+      //   shapes are a strict subset of home's shapes: home's opaque pixels
+      //   cover them, and both logos are transparent in the same background
+      //   areas. Home then fades out on top, no blending artifacts.
+      //
+      // partial → home  (home fades IN on top, partial stays static below)
+      //   The reverse snap would be visible: home has shapes in areas where
+      //   partial is transparent, so they'd appear instantly. Instead, home
+      //   fades in at z-index:2 while partial stays at opacity:1 below.
+      //   For any shared shape: home(0.5) + partial(1.0 below) = 1.0 — no dip.
+      //   Home-only shapes fade in from 0→100%. Once home reaches opacity:1
+      //   it fully covers partial, so the cleanup (partial→0) is invisible.
+      //
+      // partial → partial  (simultaneous crossfade)
+      //   Both logos have similar visual weight; blending looks natural and
+      //   matches the feel of the bg/content layer transitions.
+      let _logoActive  = "home";
+      const LOGO_IDS   = ["home", "info", "releases", "contact"];
+      let _logoCleanup = null;
+      let _cleanupEl   = null;
+
+      function swapLogo(to) {
+        if (to === _logoActive) return;
+
+        // Cancel any pending cleanup and immediately hide the awaiting element
+        // so it doesn't bleed through on the next swap.
+        clearTimeout(_logoCleanup);
+        if (_cleanupEl) {
+          _cleanupEl.style.transition = "none";
+          _cleanupEl.style.opacity    = "0";
+          _cleanupEl = null;
+        }
+
+        const fromId = _logoActive;
+        const fromEl = document.getElementById(`logo-${fromId}`);
+        const toEl   = document.getElementById(`logo-${to}`);
+        _logoActive  = to;
+
+        // Reset all z-indexes to avoid stale values from previous swaps
+        LOGO_IDS.forEach(id => {
+          document.getElementById(`logo-${id}`).style.zIndex = "0";
+        });
+
+        if (window.innerWidth <= 700) {
+          fromEl.style.transition = "none";
+          fromEl.style.opacity    = "0";
+          toEl.style.transition   = "none";
+          toEl.style.opacity      = "1";
+          return;
+        }
+
+        if (fromId === "home") {
+          // home → partial: cover-and-reveal (snap is invisible — see note above)
+          toEl.style.transition = "none";
+          toEl.style.zIndex     = "1";
+          toEl.style.opacity    = "1";
+          void toEl.offsetWidth; // commit snap before starting outgoing fade
+          fromEl.style.zIndex     = "2";
+          fromEl.style.transition = "opacity 0.3s ease-out";
+          fromEl.style.opacity    = "0";
+
+        } else if (to === "home") {
+          // partial → home: home fades in on top, partial stays static below
+          toEl.style.zIndex     = "2";
+          toEl.style.transition = "opacity 0.3s ease-out";
+          toEl.style.opacity    = "1"; // animates from current 0 → 1
+          fromEl.style.zIndex   = "1";
+          // Cleanup: partial → 0 after home is fully opaque (invisible since home covers it)
+          _cleanupEl   = fromEl;
+          _logoCleanup = setTimeout(() => {
+            fromEl.style.transition = "none";
+            fromEl.style.opacity    = "0";
+            _cleanupEl = null;
+          }, 350);
+
+        } else {
+          // partial → partial: simultaneous crossfade
+          fromEl.style.transition = "opacity 0.3s ease-out";
+          toEl.style.transition   = "opacity 0.3s ease-out";
+          void fromEl.offsetWidth; // flush so transition picks up from current state
+          fromEl.style.opacity = "0";
+          toEl.style.opacity   = "1";
+        }
+      }
+
+      function navigate(to) {
+        if (to === current || animating) return;
+        if (!VIEWS.includes(to)) return;
+
+        animating = true;
+
+        // Logo: cover-and-reveal crossfade
+        swapLogo(to);
+
+        // Manage card visibility and position on view change
+        const card = document.getElementById("innerlink-release");
+        const showCard = to === "home" || to === "releases" || to === "contact";
+
+        // Stop momentum whenever leaving a page where the card was draggable
+        const wasVisible = current === "home" || current === "releases" || current === "contact";
+        if (wasVisible) resetCard(false); // stop momentum, keep position anchor
+
+        // Only snap to default when coming from info (the one page where card is hidden).
+        // All other transitions leave the card exactly where it is.
+        if (!wasVisible && showCard && window.innerWidth > 700) {
+          resetCard(true); // clear anchor so resize handler uses calc default
+          card.style.transition = "none";
+          card.style.left      = "calc(50% + 112.625px)";
+          card.style.top       = "calc(50% + 75.625px)";
+          card.style.transform = "";
+          void card.offsetWidth; // commit snap before opacity transition
+        }
+
+        card.style.transition    = window.innerWidth <= 700 ? "none" : "opacity 0.3s ease-out";
+        card.style.opacity       = showCard ? "1" : "0";
+        card.style.pointerEvents = showCard ? "auto" : "none";
+
+        LAYERS.forEach(layer => {
+          const fromEl = document.getElementById(`${layer}-${current}`);
+          const toEl   = document.getElementById(`${layer}-${to}`);
+          if (fromEl) fromEl.classList.remove("layer--active");
+          if (toEl)   toEl.classList.add("layer--active");
+        });
+
+        // Enable pointer events only on active content
+        document.querySelectorAll("[id^='content-']").forEach(el => {
+          el.style.pointerEvents = el.id === `content-${to}` ? "auto" : "none";
+        });
+
+        current = to;
+        updateActiveNav(to);
+        setTimeout(() => { animating = false; }, window.innerWidth <= 700 ? 0 : 300);
+      }
+
+      // Highlight the nav link matching the current view in veil-gray
+      function updateActiveNav(view) {
+        document.querySelectorAll("#page-links [data-nav]").forEach(link => {
+          const active = link.dataset.nav === view;
+          link.style.transition = "none"; // suppress hover→active opacity flicker
+          link.style.color      = active ? "rgba(19,19,19,0.5)" : "";
+          link.style.opacity    = active ? "1" : "";
+          // Restore transition after two frames so the snap commits first
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            link.style.transition = "";
+          }));
+        });
+      }
+
+      // Set initial pointer events (card starts on homepage, so it's draggable)
+      document.getElementById("content-home").style.pointerEvents = "auto";
+      updateActiveNav("home"); // home has no matching data-nav link, so all reset
+
+      // Nav link clicks
+      document.querySelectorAll("[data-nav]").forEach(link => {
+        link.addEventListener("click", e => {
+          e.preventDefault();
+          closeMobileMenu();
+          navigate(e.currentTarget.dataset.nav);
+        });
+      });
+
+      // Hamburger / mobile menu toggle
+      const hamburger   = document.getElementById("hamburger");
+      const mobileMenu  = document.getElementById("mobile-menu");
+      const mobileClose = document.getElementById("mobile-close");
+
+      function openMobileMenu() {
+        mobileMenu.classList.add("open");
+        hamburger.setAttribute("aria-expanded", "true");
+      }
+      function closeMobileMenu() {
+        mobileMenu.classList.remove("open");
+        hamburger.setAttribute("aria-expanded", "false");
+      }
+
+      hamburger.addEventListener("click", openMobileMenu);
+      mobileClose.addEventListener("click", closeMobileMenu);
+
+
+      // ── Draggable innerlink-release (homepage) ───────────────
+      // Bounded to page margins, momentum with friction on release
+      let resetCard; // exposed so navigate() can stop momentum + reset position
+      (function () {
+        const el     = document.getElementById("innerlink-release");
+        const EL_W   = 233.5078125;
+        const EL_H   = 238.8125;
+        const MARGIN = 0;
+        const FRICTION = 0.94; // velocity multiplier per 16ms frame
+
+        let dragging = false;
+        let posX, posY;         // current pixel position (top-left)
+        let startPX, startPY;   // pointer position at drag start
+        let originX, originY;   // element position at drag start
+        let velX = 0, velY = 0; // px/ms velocity
+        let prevX, prevY, prevT;
+        let rafId = null;
+        let didDrag = false;    // true if pointer moved beyond click threshold
+        const CLICK_THRESHOLD = 4; // px
+        let rightOffset = null; // px from right edge — null until first drag
+
+        function bounds() {
+          return {
+            minX: MARGIN,
+            maxX: window.innerWidth  - MARGIN - EL_W,
+            minY: MARGIN,
+            maxY: window.innerHeight - MARGIN - EL_H,
+          };
+        }
+
+        function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+        // Text elements that can be partially lit by the card
+        const textTargets = [
+          document.getElementById("label-title"),
+          ...document.querySelectorAll("#page-links a"),
+          document.getElementById("clock"),
+          ...document.querySelectorAll("#social-links a"),
+        ].filter(Boolean);
+
+        // For each, create a fixed white clone clipped to the card rect
+        const clones = textTargets.map(node => {
+          const cs    = window.getComputedStyle(node);
+          const clone = document.createElement("span");
+          Object.assign(clone.style, {
+            position:      "fixed",
+            pointerEvents: "none",
+            color:         "#eeeeee",
+            fontFamily:    cs.fontFamily,
+            fontSize:      cs.fontSize,
+            fontWeight:    cs.fontWeight,
+            fontStyle:     cs.fontStyle,
+            letterSpacing: cs.letterSpacing,
+            lineHeight:    cs.lineHeight,
+            textAlign:     cs.textAlign,
+            whiteSpace:    cs.whiteSpace,
+            zIndex:        "9999",
+            margin:        "0",
+            padding:       "0",
+            display:       "none",
+          });
+          document.body.appendChild(clone);
+          return { node, clone };
+        });
+
+        const cover = document.getElementById("innerlink-cover"); // album image for text-color clipping
+
+        function updateTextColors() {
+          const card = cover.getBoundingClientRect();
+          clones.forEach(({ node, clone }) => {
+            // Sync text (clock changes every second)
+            clone.textContent = node.textContent;
+
+            const r = node.getBoundingClientRect();
+
+            // No overlap — hide clone
+            if (card.right < r.left || card.left > r.right ||
+                card.bottom < r.top || card.top > r.bottom) {
+              clone.style.display = "none";
+              return;
+            }
+
+            // Position clone exactly over original
+            clone.style.left   = r.left   + "px";
+            clone.style.top    = r.top    + "px";
+            clone.style.width  = r.width  + "px";
+            clone.style.height = r.height + "px";
+
+            // Clip to card bounds (relative to the clone element)
+            const clipTop    = Math.max(0, card.top    - r.top);
+            const clipRight  = Math.max(0, r.right     - card.right);
+            const clipBottom = Math.max(0, r.bottom    - card.bottom);
+            const clipLeft   = Math.max(0, card.left   - r.left);
+
+            clone.style.clipPath = `inset(${clipTop}px ${clipRight}px ${clipBottom}px ${clipLeft}px)`;
+            clone.style.display  = "block";
+          });
+        }
+
+        function setPos(x, y) {
+          const b = bounds();
+          posX = clamp(x, b.minX, b.maxX);
+          posY = clamp(y, b.minY, b.maxY);
+          el.style.left = posX + "px";
+          el.style.top  = posY + "px";
+          rightOffset = (window.innerWidth - posX - EL_W) / window.innerWidth;
+          updateTextColors();
+        }
+
+        el.addEventListener("pointerdown", e => {
+          if (window.innerWidth <= 700) return;
+          if (current !== "home" && current !== "releases" && current !== "contact") return;
+          if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+
+          dragging = true;
+          didDrag  = false;
+          el.style.transition = "none"; // cancel any snap-back transition
+          el.setPointerCapture(e.pointerId);
+
+          const rect = el.getBoundingClientRect();
+          originX = rect.left;
+          originY = rect.top;
+          startPX = e.clientX;
+          startPY = e.clientY;
+          prevX = e.clientX; prevY = e.clientY; prevT = performance.now();
+          velX = 0; velY = 0;
+
+          el.style.left      = originX + "px";
+          el.style.top       = originY + "px";
+          el.style.transform = "none";
+          e.preventDefault();
+        });
+
+        el.addEventListener("pointermove", e => {
+          if (!dragging) return;
+          if (!didDrag) {
+            const dx = Math.abs(e.clientX - startPX);
+            const dy = Math.abs(e.clientY - startPY);
+            if (dx > CLICK_THRESHOLD || dy > CLICK_THRESHOLD) didDrag = true;
+          }
+          const now = performance.now();
+          const dt  = now - prevT;
+          if (dt > 0) {
+            const MAX_VEL = 1.5; // px/ms
+            velX = Math.max(-MAX_VEL, Math.min(MAX_VEL, (e.clientX - prevX) / dt));
+            velY = Math.max(-MAX_VEL, Math.min(MAX_VEL, (e.clientY - prevY) / dt));
+          }
+          prevX = e.clientX; prevY = e.clientY; prevT = now;
+          setPos(originX + e.clientX - startPX, originY + e.clientY - startPY);
+        });
+
+        function momentum(lastT) {
+          return function step(now) {
+            const dt = Math.min(now - lastT, 64); // cap at 64ms to avoid jumps
+            lastT = now;
+
+            const decay = Math.pow(FRICTION, dt / 16);
+            velX *= decay;
+            velY *= decay;
+
+            if (Math.abs(velX) < 0.01 && Math.abs(velY) < 0.01) { rafId = null; return; }
+
+            const b = bounds();
+            let nx = posX + velX * dt;
+            let ny = posY + velY * dt;
+
+            // Bounce off walls — reflect and dampen
+            if (nx <= b.minX) { nx = b.minX; velX = Math.abs(velX) * 0.8; }
+            if (nx >= b.maxX) { nx = b.maxX; velX = -Math.abs(velX) * 0.8; }
+            if (ny <= b.minY) { ny = b.minY; velY = Math.abs(velY) * 0.8; }
+            if (ny >= b.maxY) { ny = b.maxY; velY = -Math.abs(velY) * 0.8; }
+
+            setPos(nx, ny);
+            rafId = requestAnimationFrame(step);
+          };
+        }
+
+        function stopDrag() {
+          if (!dragging) return;
+          dragging = false;
+          rafId = requestAnimationFrame(momentum(performance.now()));
+        }
+
+        el.addEventListener("pointerup",     stopDrag);
+        el.addEventListener("pointercancel", stopDrag);
+
+        resetCard = function (clearAnchor) {
+          if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+          dragging = false;
+          velX = 0; velY = 0;
+          if (clearAnchor) rightOffset = null;
+        };
+
+        el.addEventListener("click", e => {
+          e.stopPropagation(); // always prevent drag-end from triggering click-to-home
+          if (!didDrag) {
+            window.open("https://outerveil.bandcamp.com/album/innerlink-01", "_blank", "noopener,noreferrer");
+          }
+        });
+
+        window.addEventListener("resize", () => {
+          if (rightOffset === null) return; // not yet dragged — CSS calc handles it
+          const b = bounds();
+          posX = clamp(window.innerWidth * (1 - rightOffset) - EL_W, b.minX, b.maxX);
+          posY = clamp(posY, b.minY, b.maxY);
+          el.style.left = posX + "px";
+          el.style.top  = posY + "px";
+          updateTextColors();
+        });
+      })();
+
+      // ── Hover image cycle for innerlink-release ───────────────
+      (function () {
+        const el       = document.getElementById("innerlink-release");
+        const coverImg = el.querySelector("#innerlink-cover img");
+        const images   = [
+          "assets/mockup-front-blank.png",
+          "assets/mockup-front-cd-blank.png",
+          "assets/mockup-back-blank.png",
+        ];
+        let cycleInterval = null;
+        let cycleIndex    = 0;
+
+        el.addEventListener("mouseenter", () => {
+          cycleIndex = (cycleIndex + 1) % images.length;
+          coverImg.src = images[cycleIndex];
+          cycleInterval = setInterval(() => {
+            cycleIndex = (cycleIndex + 1) % images.length;
+            coverImg.src = images[cycleIndex];
+          }, 500);
+        });
+
+        el.addEventListener("mouseleave", () => {
+          clearInterval(cycleInterval);
+          cycleInterval = null;
+        });
+      })();
+
+    </script>
+
+  </body>
+</html>
